@@ -469,16 +469,6 @@ for tool in custom_tools:
 # Add default include paths.
 env.Prepend(CPPPATH=["#"])
 
-# Allow marking includes as external/system to avoid raising warnings.
-env["_CCCOMCOM"] += " $_CPPEXTINCFLAGS"
-env["CPPEXTPATH"] = []
-if env.scons_version < (4, 2):
-    env["_CPPEXTINCFLAGS"] = "${_concat(EXTINCPREFIX, CPPEXTPATH, EXTINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}"
-else:
-    env["_CPPEXTINCFLAGS"] = (
-        "${_concat(EXTINCPREFIX, CPPEXTPATH, EXTINCSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}"
-    )
-
 # configure ENV for platform
 env.platform_exporters = platform_exporters
 env.platform_apis = platform_apis
@@ -634,6 +624,7 @@ if env["strict_checks"]:
 
 # Run SCU file generation script if in a SCU build.
 if env["scu_build"]:
+    env.Append(CPPDEFINES=["SCU_BUILD_ENABLED"])
     max_includes_per_scu = 8
     if env.dev_build:
         max_includes_per_scu = 1024
@@ -964,19 +955,6 @@ else:  # GCC, Clang
 
     if env["werror"]:
         env.AppendUnique(CCFLAGS=["-Werror"])
-
-# Configure external includes.
-if env.msvc:
-    if not methods.using_clang(env):
-        if cc_version_major < 16 or (cc_version_major == 16 and cc_version_minor < 10):
-            env.AppendUnique(CCFLAGS=["/experimental:external"])
-        env.AppendUnique(CCFLAGS=["/external:anglebrackets"])
-    env.AppendUnique(CCFLAGS=["/external:W0"])
-    env["EXTINCPREFIX"] = "/external:I"
-    env["EXTINCSUFFIX"] = ""
-else:
-    env["EXTINCPREFIX"] = "-isystem "
-    env["EXTINCSUFFIX"] = ""
 
 if hasattr(detect, "get_program_suffix"):
     suffix = "." + detect.get_program_suffix()

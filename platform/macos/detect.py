@@ -153,7 +153,7 @@ def configure(env: "SConsEnvironment"):
 
     if env["use_ubsan"] or env["use_asan"] or env["use_tsan"]:
         env.extra_suffix += ".san"
-        env.Append(CCFLAGS=["-DSANITIZERS_ENABLED"])
+        env.Append(CPPDEFINES=["SANITIZERS_ENABLED"])
 
         if env["use_ubsan"]:
             env.Append(
@@ -251,7 +251,7 @@ def configure(env: "SConsEnvironment"):
             env.Append(LINKFLAGS=["-lANGLE.macos." + env["arch"]])
             env.Append(LINKFLAGS=["-lEGL.macos." + env["arch"]])
             env.Append(LINKFLAGS=["-lGLES.macos." + env["arch"]])
-        env.Prepend(CPPEXTPATH=["#thirdparty/angle/include"])
+        env.Prepend(CPPPATH=["#thirdparty/angle/include"])
 
     env.Append(LINKFLAGS=["-rpath", "@executable_path/../Frameworks", "-rpath", "@executable_path"])
 
@@ -264,7 +264,7 @@ def configure(env: "SConsEnvironment"):
         extra_frameworks.add("Metal")
         extra_frameworks.add("MetalKit")
         extra_frameworks.add("MetalFX")
-        env.Prepend(CPPEXTPATH=["#thirdparty/spirv-cross"])
+        env.Prepend(CPPPATH=["#thirdparty/spirv-cross"])
 
     if env["vulkan"]:
         env.AppendUnique(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
