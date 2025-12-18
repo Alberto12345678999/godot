@@ -56,19 +56,6 @@ JoypadSDL::JoypadSDL() {
 	singleton = this;
 }
 
-#ifdef WINDOWS_ENABLED
-extern "C" {
-HWND SDL_HelperWindow;
-}
-
-// Required for DInput joypads to work
-// TODO: remove this workaround when we update to newer version of SDL
-JoypadSDL::JoypadSDL(HWND p_helper_window) :
-		JoypadSDL() {
-	SDL_HelperWindow = p_helper_window;
-}
-#endif
-
 JoypadSDL::~JoypadSDL() {
 	// Process any remaining input events
 	process_events();
@@ -300,6 +287,19 @@ void JoypadSDL::close_joypad(int p_pad_idx) {
 		SDL_Joystick *joy = SDL_GetJoystickFromID(sdl_instance_idx);
 		SDL_CloseJoystick(joy);
 	}
+}
+
+bool JoypadSDL::Joypad::has_joy_light() const {
+	SDL_PropertiesID properties_id = SDL_GetJoystickProperties(get_sdl_joystick());
+	if (properties_id == 0) {
+		return false;
+	}
+	return SDL_GetBooleanProperty(properties_id, SDL_PROP_JOYSTICK_CAP_RGB_LED_BOOLEAN, false) || SDL_GetBooleanProperty(properties_id, SDL_PROP_JOYSTICK_CAP_MONO_LED_BOOLEAN, false);
+}
+
+bool JoypadSDL::Joypad::set_joy_light(const Color &p_color) {
+	Color linear = p_color.srgb_to_linear();
+	return SDL_SetJoystickLED(get_sdl_joystick(), linear.get_r8(), linear.get_g8(), linear.get_b8());
 }
 
 SDL_Joystick *JoypadSDL::Joypad::get_sdl_joystick() const {
