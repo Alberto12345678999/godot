@@ -173,6 +173,12 @@ class GodotGLRenderView extends GLSurfaceView implements GodotRenderView {
 	}
 
 	@Override
+	public boolean canCapturePointer() {
+		// Pointer capture is not supported on XR devices.
+		return !godot.isXrRuntime() && inputHandler.canCapturePointer();
+	}
+
+	@Override
 	public void requestPointerCapture() {
 		if (canCapturePointer()) {
 			super.requestPointerCapture();
