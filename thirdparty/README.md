@@ -694,6 +694,18 @@ Patches:
 - `0001-msvc-2019-psa-redeclaration.patch` ([GH-90535](https://github.com/godotengine/godot/pull/90535))
 
 
+## metal-cpp
+
+- Upstream: https://developer.apple.com/metal/cpp/
+- Version: 26.0 (2025)
+- License: Apache 2.0
+
+Update instructions:
+
+- Download latest metal-cpp ZIP from https://developer.apple.com/metal/cpp/:
+- Run `update-metal-cpp.sh <path to the downloaded zip>` to extract the relevant files and apply patches.
+
+
 ## meshoptimizer
 
 - Upstream: https://github.com/zeux/meshoptimizer
@@ -929,7 +941,7 @@ Files extracted from upstream source:
 ## re-spirv
 
 - Upstream: https://github.com/renderbag/re-spirv
-- Version: git (5af3b606e6aaf11bae8dc7b5cd236c943e24865e, 2025)
+- Version: git (c1853b0221cd43866b792406f55c4ab10a0b4503, 2026)
 - License: MIT
 
 Files extracted from upstream source:
