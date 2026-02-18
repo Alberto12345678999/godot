@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  gdscript_language_server.h                                            */
+/*  display_server_headless.cpp                                           */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,37 +28,41 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#pragma once
+#include "display_server_headless.h"
 
-#include "gdscript_language_protocol.h"
+#include "core/input/input.h"
+#include "core/input/input_event.h"
+#include "servers/display/native_menu.h"
+#include "servers/rendering/dummy/rasterizer_dummy.h"
 
-#include "editor/plugins/editor_plugin.h"
+DisplayServer *DisplayServerHeadless::create_func(const String &p_rendering_driver, DisplayServer::WindowMode p_mode, DisplayServer::VSyncMode p_vsync_mode, uint32_t p_flags, const Vector2i *p_position, const Vector2i &p_resolution, int p_screen, Context p_context, int64_t p_parent_window, Error &r_error) {
+	r_error = OK;
+	RasterizerDummy::make_current();
+	return memnew(DisplayServerHeadless());
+}
 
-class GDScriptLanguageServer : public EditorPlugin {
-	GDCLASS(GDScriptLanguageServer, EditorPlugin);
+void DisplayServerHeadless::_dispatch_input_events(const Ref<InputEvent> &p_event) {
+	static_cast<DisplayServerHeadless *>(get_singleton())->_dispatch_input_event(p_event);
+}
 
-	Thread thread;
-	bool thread_running = false;
-	// There is no notification when the editor is initialized. We need to poll till we attempted to start the server.
-	bool start_attempted = false;
-	bool started = false;
+void DisplayServerHeadless::_dispatch_input_event(const Ref<InputEvent> &p_event) {
+	if (input_event_callback.is_valid()) {
+		input_event_callback.call(p_event);
+	}
+}
 
-	// Defaults located in editor_settings.cpp
-	bool use_thread = false;
-	String host;
-	int port = 0;
-	int poll_limit_usec = 0;
+void DisplayServerHeadless::process_events() {
+	Input::get_singleton()->flush_buffered_events();
+}
 
-	static void thread_main(void *p_userdata);
+DisplayServerHeadless::DisplayServerHeadless() {
+	native_menu = memnew(NativeMenu);
+	Input::get_singleton()->set_event_dispatch_function(_dispatch_input_events);
+}
 
-private:
-	void _notification(int p_what);
-
-public:
-	static int port_override;
-	GDScriptLanguageServer();
-	void start();
-	void stop();
-};
-
-void register_lsp_types();
+DisplayServerHeadless::~DisplayServerHeadless() {
+	if (native_menu) {
+		memdelete(native_menu);
+		native_menu = nullptr;
+	}
+}

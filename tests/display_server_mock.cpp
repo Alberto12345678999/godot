@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  gdscript_language_server.h                                            */
+/*  display_server_mock.cpp                                               */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,37 +28,28 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#pragma once
+#include "display_server_mock.h"
 
-#include "gdscript_language_protocol.h"
+#include "core/input/input.h"
+#include "core/input/input_event.h"
+#include "servers/rendering/dummy/rasterizer_dummy.h"
 
-#include "editor/plugins/editor_plugin.h"
+DisplayServer *DisplayServerMock::create_func(const String &p_rendering_driver, DisplayServer::WindowMode p_mode, DisplayServer::VSyncMode p_vsync_mode, uint32_t p_flags, const Vector2i *p_position, const Vector2i &p_resolution, int p_screen, Context p_context, int64_t p_parent_window, Error &r_error) {
+	r_error = OK;
+	RasterizerDummy::make_current();
+	return memnew(DisplayServerMock());
+}
 
-class GDScriptLanguageServer : public EditorPlugin {
-	GDCLASS(GDScriptLanguageServer, EditorPlugin);
-
-	Thread thread;
-	bool thread_running = false;
-	// There is no notification when the editor is initialized. We need to poll till we attempted to start the server.
-	bool start_attempted = false;
-	bool started = false;
-
-	// Defaults located in editor_settings.cpp
-	bool use_thread = false;
-	String host;
-	int port = 0;
-	int poll_limit_usec = 0;
-
-	static void thread_main(void *p_userdata);
-
-private:
-	void _notification(int p_what);
-
-public:
-	static int port_override;
-	GDScriptLanguageServer();
-	void start();
-	void stop();
-};
-
-void register_lsp_types();
+void DisplayServerMock::simulate_event(Ref<InputEvent> p_event) {
+	Ref<InputEvent> event = p_event;
+	Ref<InputEventMouse> me = p_event;
+	if (me.is_valid()) {
+		Ref<InputEventMouseMotion> mm = p_event;
+		if (mm.is_valid()) {
+			mm->set_relative(mm->get_position() - mouse_position);
+			event = mm;
+		}
+		_set_mouse_position(me->get_position());
+	}
+	Input::get_singleton()->parse_input_event(event);
+}
