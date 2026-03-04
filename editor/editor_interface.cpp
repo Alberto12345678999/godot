@@ -31,6 +31,7 @@
 #include "editor_interface.h"
 #include "editor_interface.compat.inc"
 
+#include "core/config/engine.h"
 #include "core/config/project_settings.h"
 #include "core/io/resource_loader.h"
 #include "core/object/class_db.h"
@@ -62,6 +63,7 @@
 #include "scene/main/window.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/theme.h"
+#include "servers/display/display_server.h"
 #include "servers/rendering/rendering_server.h"
 
 EditorInterface *EditorInterface::singleton = nullptr;

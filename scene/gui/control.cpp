@@ -33,12 +33,13 @@
 
 STATIC_ASSERT_INCOMPLETE_TYPE(class, RenderingServer);
 
-#include "container.h"
+#include "core/config/engine.h"
 #include "core/config/project_settings.h"
 #include "core/input/input_map.h"
 #include "core/object/class_db.h"
 #include "core/os/os.h"
 #include "core/string/string_builder.h"
+#include "scene/gui/container.h"
 #include "scene/gui/scroll_container.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/window.h"
@@ -2882,7 +2883,7 @@ void Control::_window_find_focus_neighbor(const Vector2 &p_dir, Node *p_at, cons
 
 void Control::set_default_cursor_shape(CursorShape p_shape) {
 	ERR_MAIN_THREAD_GUARD;
-	ERR_FAIL_INDEX(int(p_shape), CURSOR_MAX);
+	ERR_FAIL_INDEX(int(p_shape), DisplayServerEnums::CURSOR_MAX);
 
 	if (data.default_cursor == p_shape) {
 		return;

@@ -35,6 +35,7 @@
 #include "editor_import_blend_runner.h"
 
 #include "core/config/project_settings.h"
+#include "core/os/os.h"
 #include "editor/editor_node.h"
 #include "editor/editor_string_names.h"
 #include "editor/gui/editor_file_dialog.h"
@@ -42,6 +43,7 @@
 #include "editor/themes/editor_scale.h"
 #include "main/main.h"
 #include "scene/gui/line_edit.h"
+#include "servers/display/display_server.h"
 
 #ifdef WINDOWS_ENABLED
 #include <shlwapi.h>
