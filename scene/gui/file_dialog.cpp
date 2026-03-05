@@ -34,6 +34,7 @@
 #include "core/config/project_settings.h"
 #include "core/io/dir_access.h"
 #include "core/io/file_access.h"
+#include "core/object/callable_mp.h"
 #include "core/object/class_db.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
@@ -802,7 +803,7 @@ void FileDialog::_popup_menu(const Vector2 &p_pos, int p_for_item) {
 		meta = file_list->get_item_metadata(p_for_item);
 	}
 
-	item_menu->add_item((p_for_item == -1 || meta["dir"]) ? ETR("Open in File Manager") : ETR("Show in File Manager"), ITEM_MENU_SHOW_IN_EXPLORER);
+	item_menu->add_item((p_for_item == -1 || meta["dir"]) ? OS::get_singleton()->get_platform_string(OS::PLATFORM_STRING_FILE_MANAGER_OPEN) : OS::get_singleton()->get_platform_string(OS::PLATFORM_STRING_FILE_MANAGER_SHOW), ITEM_MENU_SHOW_IN_EXPLORER);
 	item_menu->set_item_icon(-1, theme_cache.menu_show_in_file_manager);
 	if (meta["bundle"]) {
 		item_menu->add_item(ETR("Show Package Contents"), ITEM_MENU_SHOW_BUNDLE_CONTENT);
@@ -1562,6 +1563,10 @@ void FileDialog::_invalidate() {
 
 	update_file_list();
 
+	if (ensure_visible_after_invalidating) {
+		file_list->ensure_current_is_visible();
+		ensure_visible_after_invalidating = false;
+	}
 	is_invalidating = false;
 }
 
@@ -1675,6 +1680,7 @@ void FileDialog::_sort_option_selected(int p_option) {
 		file_sort_button->get_popup()->set_item_checked(i, (i == p_option));
 	}
 	file_sort = FileSortOption(p_option);
+	ensure_visible_after_invalidating = true;
 	invalidate();
 }
 

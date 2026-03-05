@@ -32,6 +32,7 @@
 
 #include "core/config/project_settings.h"
 #include "core/debugger/debugger_marshalls.h"
+#include "core/object/callable_mp.h"
 #include "core/object/class_db.h"
 #include "core/os/process_id.h"
 #include "core/string/translation_server.h"
@@ -55,6 +56,7 @@
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel.h"
 #include "scene/gui/separator.h"
+#include "scene/main/scene_tree.h"
 #include "servers/display/display_server.h"
 
 void GameViewDebugger::_session_started(Ref<EditorDebuggerSession> p_session) {
@@ -244,6 +246,17 @@ void GameViewDebugger::set_camera_manipulate_mode(EditorDebuggerNode::CameraOver
 
 	if (EditorDebuggerNode::get_singleton()->get_camera_override() != EditorDebuggerNode::OVERRIDE_NONE) {
 		set_camera_override(true);
+	}
+}
+
+void GameViewDebugger::report_window_focused(bool p_focused) {
+	Array message;
+	message.append(p_focused);
+
+	for (Ref<EditorDebuggerSession> &I : sessions) {
+		if (I->is_active()) {
+			I->send_message("scene:report_window_focused", message);
+		}
 	}
 }
 
@@ -986,6 +999,14 @@ void GameView::_notification(int p_what) {
 
 			_update_ui();
 		} break;
+
+		case NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		case NOTIFICATION_WM_WINDOW_FOCUS_OUT: {
+			if (embed_on_play) {
+				debugger->report_window_focused(p_what == NOTIFICATION_WM_WINDOW_FOCUS_IN);
+			}
+		} break;
+
 		case NOTIFICATION_WM_POSITION_CHANGED: {
 			if (window_wrapper->get_window_enabled()) {
 				_update_floating_window_settings();
