@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  camera_macos.h                                                        */
+/*  tts_driver.h                                                          */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -30,17 +30,24 @@
 
 #pragma once
 
-///@TODO this is a near duplicate of CameraIOS, we should find a way to combine those to minimize code duplication!!!!
-// If you fix something here, make sure you fix it there as well!
+#include "core/object/object.h"
 
-#include "servers/camera/camera_server.h"
-
-class CameraMacOS : public CameraServer {
-	GDSOFTCLASS(CameraMacOS, CameraServer);
+class TTSDriver : public Object {
+	GDSOFTCLASS(TTSDriver, Object);
 
 public:
-	CameraMacOS() = default;
+	virtual bool is_speaking() const = 0;
+	virtual bool is_paused() const = 0;
+	virtual Array get_voices() const = 0;
 
-	void update_feeds();
-	void set_monitoring_feeds(bool p_monitoring_feeds) override;
+	virtual void speak(const String &p_text, const String &p_voice, int p_volume = 50, float p_pitch = 1.f, float p_rate = 1.f, int64_t p_utterance_id = 0, bool p_interrupt = false) = 0;
+	virtual void pause() = 0;
+	virtual void resume() = 0;
+	virtual void stop() = 0;
+
+	virtual void process_events() = 0;
+
+	virtual bool init() = 0;
+
+	virtual ~TTSDriver() {}
 };
